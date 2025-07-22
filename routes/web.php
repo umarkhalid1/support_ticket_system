@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+
 Route::get('/', Home::class)->name('home');
 Route::get('ticket/create', TicketCreate::class)->name('tickets.create');
 
