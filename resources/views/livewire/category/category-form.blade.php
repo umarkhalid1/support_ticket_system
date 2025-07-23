@@ -17,6 +17,16 @@
                     @enderror
                 </div>
 
+                {{-- <div x-data="{ fields: [{ value: '' }] }">
+                    <template x-for="(field, index) in fields" :key="index">
+                        <div>
+                            <input type="text"class="form-input w-full" x-model="field.value" :name="`field_${index}`">
+                            <button type="button" class="btn bg-primary text-white" @click="fields.splice(index, 1)">Remove</button>
+                        </div>
+                    </template>
+                    <button type="button" @click="fields.push({ value: '' })">Add More</button>
+                </div> --}}
+
                 <div class="col-span-2">
                     <button type="submit" class="btn bg-primary text-white">
                         Submit

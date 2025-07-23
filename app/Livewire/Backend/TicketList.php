@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Backend;
 
-use App;
 use Mail;
 use App\Models\User;
 use App\Models\Ticket;
 use Livewire\Component;
 use App\Models\Category;
+use Livewire\Attributes\On;
 use App\Mail\TicketAssigned;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -19,7 +19,6 @@ use App\Livewire\Concerns\WithToastr;
 class TicketList extends Component
 {
     use WithPagination, WithToastr;
-    public $showModal = false;
     public $ticketID = null;
     protected $listeners = ['updateAssignedTo', 'updatePriority', 'updateStatus'];
 
@@ -123,7 +122,7 @@ class TicketList extends Component
             $ticket->save();
 
             $user = User::findOrFail($userId);
-            Mail::to($user->email)->send(new TicketAssigned($ticket));
+            Mail::to($user->email)->queue(new TicketAssigned($ticket));
 
             DB::commit();
             return $this->toastSuccess('Ticket assigned successfully.');
@@ -169,31 +168,28 @@ class TicketList extends Component
         }
     }
 
-    public function confirmDelete($ticket)
+
+    public function confirmDelete($id)
     {
-        $this->ticketID = $ticket;
-        $this->showModal = true;
+        $this->dispatch('deleteConfirmation', id: $id);
     }
 
-    public function delete()
+    #[On('delete')]
+    public function delete($id)
     {
         try {
             DB::beginTransaction();
 
-            Ticket::findOrFail($this->ticketID)->delete();
+            Ticket::findOrFail($id)->delete();
+
+            $this->toastError('Ticket deleted successfully.');
 
             DB::commit();
 
-            $this->reset(['ticketID', 'showModal']);
-            $this->toastError('User deleted successfully.');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->toastError($th->getMessage());
+            $this->toastError($th->getMessage());
         }
     }
 
-    public function cancel()
-    {
-        $this->showModal = false;
-    }
 }

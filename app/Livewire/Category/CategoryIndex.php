@@ -2,20 +2,19 @@
 
 namespace App\Livewire\Category;
 
-use App\Livewire\Concerns\WithToastr;
-use Livewire\Attributes\Url;
 use Livewire\Component;
 use App\Models\Category;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\DB;
+use App\Livewire\Concerns\WithToastr;
 
 #[Layout('layouts.admin.app')]
 class CategoryIndex extends Component
 {
     use WithPagination, WithToastr;
-
-    public $categoryId = null;
-    public $showModal = false;
 
     #[Url()]
     public $search_by_name = '';
@@ -33,24 +32,7 @@ class CategoryIndex extends Component
         ]);
     }
 
-    public function confirmDelete($category)
-    {
-        $this->categoryId = $category;
-        $this->showModal = true;
-    }
 
-    public function cancel()
-    {
-        $this->showModal = false;
-    }
-
-    public function delete()
-    {
-        Category::findOrFail($this->categoryId)->delete();
-
-        $this->reset(['categoryId', 'showModal']);
-        $this->toastError('Category deleted successfully.');
-    }
 
     public function clearFilters()
     {
@@ -60,7 +42,30 @@ class CategoryIndex extends Component
 
     public function updatedSearchByName()
     {
-        $this->resetPage();  
+        $this->resetPage();
+    }
+
+    public function confirmDelete($id)
+    {
+        $this->dispatch('deleteConfirmation', id: $id);
+    }
+
+    #[On('delete')]
+    public function delete($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            Category::findOrFail($id)->delete();
+
+            $this->toastError('Category deleted successfully.');
+
+            DB::commit();
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->toastError($th->getMessage());
+        }
     }
 
 }

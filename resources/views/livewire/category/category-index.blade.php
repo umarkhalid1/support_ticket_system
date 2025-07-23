@@ -60,28 +60,6 @@
                                                     <i class="ri-delete-bin-2-line text-base text-red-600"></i>
                                                 </button>
                                             @endcan
-
-                                            <!-- Delete Modal -->
-                                            @if ($showModal)
-                                                <div class="fixed inset-0 z-50 flex items-center justify-center">
-                                                    <div
-                                                        class="sm:max-w-xs w-full m-3 sm:mx-auto flex flex-col bg-danger text-white shadow-sm rounded transition-all duration-300">
-                                                        <div class="p-9 text-center">
-                                                            <i class="ri-close-circle-line text-4xl"></i>
-                                                            <h4 class="text-xl font-medium mt-3 mb-2.5">Delete
-                                                                Confirmation</h4>
-                                                            <p class="mt-2 mb-4">Are you sure you want to delete this?
-                                                            </p>
-                                                            <div class="flex justify-center space-x-4">
-                                                                <button type="button" class="btn bg-light text-black"
-                                                                    wire:click="cancel">Cancel</button>
-                                                                <button type="button" class="btn bg-white text-danger"
-                                                                    wire:click="delete">Yes, Delete</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -102,3 +80,24 @@
         </div>
     </div>
 </div>
+
+
+@script
+    <script>
+        $wire.on('deleteConfirmation', (event) => {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $wire.dispatch('delete',{ id: event.id});
+                }
+            });
+        });
+    </script>
+@endscript

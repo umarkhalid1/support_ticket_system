@@ -58,7 +58,8 @@ class TicketCreate extends Component
             $ticket->user_id = Auth::id();
             $ticket->save();
 
-            Mail::to('admin@gmail.com')->send(new TicketCreated($ticket));
+            Mail::to('admin@gmail.com')->queue(new TicketCreated($ticket));
+
 
             DB::commit();
             $this->reset('title', 'priority', 'description', 'category_id', 'attachement');

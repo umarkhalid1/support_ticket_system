@@ -2,54 +2,22 @@
 
 namespace App\Livewire\Backend;
 
-use App\Livewire\Concerns\WithToastr;
 use App\Models\User;
-use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\DB;
+use App\Livewire\Concerns\WithToastr;
 
 #[Layout('layouts.admin.app')]
 class UserList extends Component
 {
     use WithPagination, WithToastr;
-    public $showModal = false;
-
-    public $userId = null;
 
     #[Url()]
     public $search_by_name = '';
-
-    public function confirmDelete($user)
-    {
-        $this->userId = $user;
-        $this->showModal = true;
-    }
-
-    public function delete()
-    {
-        try {
-            DB::beginTransaction();
-
-            User::findOrFail($this->userId)->delete();
-
-            DB::commit();
-
-            $this->reset(['userId', 'showModal']);
-            $this->toastError('User deleted successfully.');
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return $this->toastError($th->getMessage());
-        }
-    }
-
-    public function cancel()
-    {
-        $this->showModal = false;
-    }
-
     public function render()
     {
         $users = User::query()
@@ -71,6 +39,29 @@ class UserList extends Component
     public function updatedSearchByName()
     {
         $this->resetPage();
+    }
+
+    public function confirmDelete($id)
+    {
+        $this->dispatch('deleteConfirmation', id: $id);
+    }
+
+    #[On('delete')]
+    public function delete($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            User::findOrFail($id)->delete();
+
+            $this->toastError('User deleted successfully.');
+
+            DB::commit();
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->toastError($th->getMessage());
+        }
     }
 
 }

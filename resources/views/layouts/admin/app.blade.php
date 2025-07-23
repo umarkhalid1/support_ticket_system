@@ -5,9 +5,9 @@
     <meta charset="utf-8">
     <title>Dashboard | Support Ticketing System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta
+    {{-- <meta
         content="A fully featured admin theme which can be used to build CRM, CMS, etc., Tailwind, TailwindCSS, Tailwind CSS 3"
-        name="description">
+        name="description"> --}}
     <meta content="coderthemes" name="author">
 
     <!-- App favicon -->
@@ -35,89 +35,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
     @livewireStyles
-
-    <style>
-        .toast-success {
-            background-color: #0A8D6E !important;
-            color: #fff !important;
-            opacity: 1 !important;
-        }
-
-        .toast-error {
-            color: #fff !important;
-            opacity: 1 !important;
-        }
-
-        .toast-success .toast-progress {
-            background-color: #c3e6cb !important;
-        }
-
-        .select2-container .select2-selection--single {
-            height: 37px;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 33px;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 33px;
-        }
-
-
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            color: black !important;
-        }
-
-        .select2-selection--multiple {
-            height: 40px;
-        }
-
-        .loading-spinner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .spinner {
-            width: 56px;
-            height: 56px;
-            display: grid;
-            color: #212529;
-            background: radial-gradient(farthest-side, currentColor calc(100% - 7px), #0000 calc(100% - 6px) 0);
-            -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 15px), #000 calc(100% - 13px));
-            border-radius: 50%;
-            animation: spinner-sm4bhi 2s infinite linear;
-        }
-
-        .spinner::before,
-        .spinner::after {
-            content: "";
-            grid-area: 1/1;
-            background: linear-gradient(currentColor 0 0) center,
-                linear-gradient(currentColor 0 0) center;
-            background-size: 100% 11px, 11px 100%;
-            background-repeat: no-repeat;
-        }
-
-        .spinner::after {
-            transform: rotate(45deg);
-        }
-
-        @keyframes spinner-sm4bhi {
-            100% {
-                transform: rotate(1turn);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
 
 </head>
 
