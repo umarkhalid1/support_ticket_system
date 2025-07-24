@@ -26,18 +26,16 @@ class ContactUser extends Component
         if ($ticket->status === Ticket::CLOSED_STATUS || $ticket->status === Ticket::RESOLVED_STATUS) {
             abort(403, 'You cannot send messages to this ticket.');
         }
+        if (Auth::user()->hasRole(User::SUPPORT_AGENT_ROLE) && $ticket->assigned_to !== Auth::id()) {
+            abort(403, 'You are not authorized to access this ticket.');
+        }
+
+        $replies = TicketReply::with('user:id,name')
+            ->where('ticket_id', $ticket->id)
+            ->get();
 
         $this->ticket_id = $ticket->id;
         $this->userId = $ticket->user_id;
-
-        if (Auth::user()->hasRole(User::SUPPORT_AGENT_ROLE)) {
-            if ($ticket->assigned_to !== auth()->id()) {
-                abort(403);
-            }
-            $replies = TicketReply::with('user:id,name')->where('ticket_id', $ticket->id)->get();
-        } else {
-            $replies = TicketReply::with('user:id,name')->where('ticket_id', $ticket->id)->get();
-        }
 
         return compact('ticket', 'replies');
     }
@@ -73,9 +71,8 @@ class ContactUser extends Component
             TicketReply::create($validatedData);
 
             $this->message = '';
-            $this->dispatch('messageSent');
+            // $this->dispatch('messageSent');
             $this->dispatch('message-sent');
-
 
             DB::commit();
 

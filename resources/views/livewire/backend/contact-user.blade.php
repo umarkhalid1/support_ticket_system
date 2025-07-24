@@ -1,4 +1,6 @@
-<main class="p-2" wire:listen.window="messageSent">
+{{-- <main class="p-2" wire:listen.window="messageSent"> --}}
+<main class="p-2">
+
     <div class="relative lg:overflow-visible overflow-hidden">
         <div class="lg:flex gap-4">
             <div id="default-offcanvas"
