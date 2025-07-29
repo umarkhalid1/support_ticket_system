@@ -46,9 +46,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', \App\Livewire\Logout::class)->name('logout');
     Route::get('profile', UserProfile::class)->name('profile');
 
-    Route::get('image_upload', ImageUpload::class);
-
-
 });
 
 
