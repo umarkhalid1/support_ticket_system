@@ -106,7 +106,7 @@
     {{-- <script src="{{ asset('assets/libs/jsvectormap/maps/world.js') }}"></script> --}}
 
     <!-- Dashboard App js -->
-    <script src="{{ asset('assets/js/pages/dashboard.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/pages/dashboard.js') }}"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         window.onload = function() {

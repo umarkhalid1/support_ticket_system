@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Ticket;
 use Livewire\Component;
 use App\Models\TicketReply;
+use Livewire\WithFileUploads;
+use App\Models\ReplyAttachment;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\DB;
 use App\Livewire\Concerns\WithToastr;
@@ -14,9 +16,12 @@ use App\Livewire\Concerns\WithToastr;
 #[Layout('layouts.admin.app')]
 class ContactUser extends Component
 {
-    use WithToastr;
+    use WithToastr, WithFileUploads;
 
     public $id, $message, $userId, $ticket_id;
+
+    public $uploadedImages = [];
+
     public function loadReplies()
     {
         $ticket = Ticket::with('user:id,name')
@@ -30,9 +35,16 @@ class ContactUser extends Component
             abort(403, 'You are not authorized to access this ticket.');
         }
 
-        $replies = TicketReply::with('user:id,name')
+        $replies = TicketReply::with([
+            'user:id,name',
+            'attachments' => function ($query) {
+                $query->select(['id', 'ticket_reply_id', 'file_path']);
+            }
+        ])
             ->where('ticket_id', $ticket->id)
             ->get();
+
+        // dd($replies);
 
         $this->ticket_id = $ticket->id;
         $this->userId = $ticket->user_id;
@@ -54,7 +66,8 @@ class ContactUser extends Component
     protected function rules()
     {
         return [
-            'message' => 'required|min:1'
+            'message' => 'required|min:1',
+            'uploadedImages.*' => 'image|max:1024|nullable'
         ];
     }
 
@@ -62,21 +75,36 @@ class ContactUser extends Component
     {
         $validatedData = $this->validate();
 
-        $validatedData['ticket_id'] = $this->ticket_id;
-        $validatedData['user_id'] = auth()->id();
-
+        $replyData = [
+            'message' => $validatedData['message'],
+            'ticket_id' => $this->ticket_id,
+            'user_id' => auth()->id(),
+        ];
         try {
             DB::beginTransaction();
 
-            TicketReply::create($validatedData);
+            $ticketReply = TicketReply::create($replyData);
+
+            if (!empty($this->uploadedImages)) {
+
+                foreach ($this->uploadedImages as $index => $image) {
+
+                    $path = $image->store('reply-attachments', 'public');
+
+                    ReplyAttachment::create([
+                        'ticket_reply_id' => $ticketReply->id,
+                        'file_path' => $path,
+                    ]);
+                }
+            }
 
             $this->message = '';
+            $this->uploadedImages = [];
             // $this->dispatch('messageSent');
             $this->dispatch('message-sent');
+            $this->dispatch('clear-images');
 
             DB::commit();
-
-            // return $this->toastSuccess('Reply added successfully.');
 
         } catch (\Throwable $th) {
             DB::rollBack();

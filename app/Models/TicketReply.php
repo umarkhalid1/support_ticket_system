@@ -12,4 +12,9 @@ class TicketReply extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function attachments()
+    {
+        return $this->hasMany(ReplyAttachment::class, 'ticket_reply_id');
+    }
 }

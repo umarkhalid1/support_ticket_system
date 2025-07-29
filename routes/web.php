@@ -2,6 +2,7 @@
 
 use App\Livewire\Backend\ContactUser;
 use App\Livewire\Dashboard;
+use App\Livewire\ImageUpload;
 use App\Livewire\UserProfile;
 use App\Livewire\Frontend\Home;
 use App\Livewire\Backend\EditUser;
@@ -44,6 +45,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/logout', \App\Livewire\Logout::class)->name('logout');
     Route::get('profile', UserProfile::class)->name('profile');
+
+    Route::get('image_upload', ImageUpload::class);
 
 
 });
