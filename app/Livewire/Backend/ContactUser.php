@@ -5,6 +5,7 @@ namespace App\Livewire\Backend;
 use Auth;
 use App\Models\User;
 use App\Models\Ticket;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use App\Models\TicketReply;
 use Livewire\WithFileUploads;
@@ -14,16 +15,66 @@ use Illuminate\Support\Facades\DB;
 use App\Livewire\Concerns\WithToastr;
 
 #[Layout('layouts.admin.app')]
+
 class ContactUser extends Component
 {
     use WithToastr, WithFileUploads;
 
-    public $id, $message, $userId, $ticket_id;
+    public $id, $message, $userId, $ticket_id, $replies;
 
     public $uploadedImages = [];
+    protected $listeners = ['newReplyAdded'];
+
+    public function newReplyAdded()
+    {
+        $this->loadReplies();
+    }
+
+    public function mount()
+    {
+        $this->loadReplies();
+    }
 
     public function loadReplies()
     {
+        $this->replies = TicketReply::with([
+            'user:id,name',
+            'attachments' => function ($query) {
+                $query->select(['id', 'ticket_reply_id', 'file_path']);
+            }
+        ])
+            ->where('ticket_id', $this->id)
+            ->latest()
+            ->take(20)
+            ->get()
+            ->reverse();
+    }
+
+    #[On('loadMoreReplies')]
+    public function loadMoreReplies()
+    {
+        // dd('this is working fine');
+        $newReplies = TicketReply::with([
+            'user:id,name',
+            'attachments' => function ($query) {
+                $query->select(['id', 'ticket_reply_id', 'file_path']);
+            }
+        ])
+            ->where('ticket_id', $this->id)
+            ->latest()
+            ->skip($this->replies->count())
+            ->take(20)
+            ->get()
+            ->reverse();
+
+        $this->replies = $newReplies->merge($this->replies);
+    }
+
+    public function render()
+    {
+        if (empty($this->id))
+            abort(404);
+
         $ticket = Ticket::with('user:id,name')
             ->select(['id', 'user_id', 'assigned_to', 'description', 'status'])
             ->findOrFail($this->id);
@@ -35,33 +86,14 @@ class ContactUser extends Component
             abort(403, 'You are not authorized to access this ticket.');
         }
 
-        $replies = TicketReply::with([
-            'user:id,name',
-            'attachments' => function ($query) {
-                $query->select(['id', 'ticket_reply_id', 'file_path']);
-            }
-        ])
-            ->where('ticket_id', $ticket->id)
-            ->get();
-
-        // dd($replies);
-
         $this->ticket_id = $ticket->id;
         $this->userId = $ticket->user_id;
 
-        return compact('ticket', 'replies');
+        return view('livewire.backend.contact-user', [
+            'ticket' => $ticket,
+            'replies' => $this->replies,
+        ]);
     }
-
-    public function render()
-    {
-        if (empty($this->id))
-            abort(404);
-
-        $data = $this->loadReplies();
-
-        return view('livewire.backend.contact-user', $data);
-    }
-
 
     protected function rules()
     {
@@ -97,13 +129,10 @@ class ContactUser extends Component
                     ]);
                 }
             }
-
             $this->message = '';
             $this->uploadedImages = [];
-            // $this->dispatch('messageSent');
-            $this->dispatch('message-sent');
+            $this->dispatch('newReplyAdded');
             $this->dispatch('clear-images');
-
             DB::commit();
 
         } catch (\Throwable $th) {

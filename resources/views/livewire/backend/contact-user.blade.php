@@ -26,11 +26,34 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-6">
-                        <div x-data x-init="$nextTick(() => { $el.scrollTop = $el.scrollHeight })"
-                            x-on:message-sent.window="$nextTick(() => { $el.scrollTop = $el.scrollHeight })"
-                            class="space-y-4 overflow-y-auto w-full"
+                    <div class="p-4">
+                        <div x-data="{
+                            loading: false,
+                            async checkScrollTop(event) {
+                                if (event.target.scrollTop === 0 && !this.loading) {
+                                    this.loading = true;
+                        
+                                    await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                                    Livewire.dispatch('loadMoreReplies');
+                        
+                                    await new Promise(resolve => setTimeout(resolve, 400)); // optional
+                                    this.loading = false;
+                                }
+                            },
+                            scrollToBottom() {
+                                $nextTick(() => {
+                                    this.$el.scrollTop = this.$el.scrollHeight;
+                                });
+                            }
+                        }" x-init="scrollToBottom()" @scroll="checkScrollTop($event)"
+                            class="space-y-4 overflow-y-auto w-full relative"
                             style="max-height: calc(100vh - 300px); scrollbar-width: none; -ms-overflow-style: none;">
+
+                            <div x-show="loading" style="margin-bottom: 50px;"
+                                class="absolute top-0 left-1/2 transform -translate-x-1/2 text-gray-500 text-sm">
+                                Loading...
+                            </div>
 
 
                             <!-- Chat Left -->
@@ -69,32 +92,24 @@
                                             </p>
                                             <p class="pt-1 text-white/90">{{ $reply->message }}</p>
                                             <div x-data="{ showModal: false, selectedImage: '' }" class="flex gap-2 mt-2 cursor-pointer">
-                                                <!-- Thumbnails -->
                                                 @if ($reply->attachments->isNotEmpty())
                                                     @foreach ($reply->attachments as $attachment)
                                                         <img src="{{ asset('storage/' . $attachment->file_path) }}"
                                                             alt="Ticket Attachment"
                                                             class="w-16 h-16 object-cover rounded shadow hover:scale-105 transition-transform duration-150"
-                                                            @click="showModal = true; selectedImage = '{{ asset('storage/' . $attachment->file_path) }}'" />
+                                                            @click="selectedImage = '{{ asset('storage/' . $attachment->file_path) }}'; showModal = true" />
                                                     @endforeach
                                                 @endif
-
-                                                <div x-show="showModal" x-transition.opacity x-cloak
-                                                    class="fixed inset-0 z-50 bg-opacity-80 flex items-center justify-center"
-                                                    @keydown.window.escape="showModal = false">
-                                                    <div class="relative max-w-full max-h-full p-4">
-                                                        <button @click="showModal = false"
-                                                            class="absolute top-2 right-5 text-red text-3xl font-bold hover:text-gray-300 focus:outline-none"
-                                                            aria-label="Close">
-                                                            &times;
-                                                        </button>
-
-                                                        <img :src="selectedImage" alt="Preview Attachment"
-                                                            class="rounded-lg shadow-xl max-h-[80vh] max-w-full" />
+                                                <div x-show="showModal" x-transition x-cloak
+                                                    @keydown.escape.window="showModal = false"
+                                                    class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center">
+                                                    <div class="relative max-w-3xl w-full px-4"
+                                                        @click.away="showModal = false">
+                                                        <img :src="selectedImage" alt="Selected Attachment"
+                                                            class="rounded shadow-lg max-h-[80vh] mx-auto" />
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 @else
@@ -116,28 +131,21 @@
                                             </p>
                                             <p class="pt-1">{{ $reply->message }}</p>
                                             <div x-data="{ showModal: false, selectedImage: '' }" class="flex gap-2 mt-2 cursor-pointer">
-                                                <!-- Thumbnails -->
                                                 @if ($reply->attachments->isNotEmpty())
                                                     @foreach ($reply->attachments as $attachment)
                                                         <img src="{{ asset('storage/' . $attachment->file_path) }}"
                                                             alt="Ticket Attachment"
                                                             class="w-16 h-16 object-cover rounded shadow hover:scale-105 transition-transform duration-150"
-                                                            @click="showModal = true; selectedImage = '{{ asset('storage/' . $attachment->file_path) }}'" />
+                                                            @click="selectedImage = '{{ asset('storage/' . $attachment->file_path) }}'; showModal = true" />
                                                     @endforeach
                                                 @endif
-
-                                                <div x-show="showModal" x-transition.opacity x-cloak
-                                                    class="fixed inset-0 z-50 bg-opacity-80 flex items-center justify-center"
-                                                    @keydown.window.escape="showModal = false">
-                                                    <div class="relative max-w-full max-h-full p-4">
-                                                        <button @click="showModal = false"
-                                                            class="absolute top-2 right-5 text-red text-3xl font-bold hover:text-gray-300 focus:outline-none"
-                                                            aria-label="Close">
-                                                            &times;
-                                                        </button>
-
-                                                        <img :src="selectedImage" alt="Preview Attachment"
-                                                            class="rounded-lg shadow-xl max-h-[80vh] max-w-full" />
+                                                <div x-show="showModal" x-transition x-cloak
+                                                    @keydown.escape.window="showModal = false"
+                                                    class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center">
+                                                    <div class="relative max-w-3xl w-full px-4"
+                                                        @click.away="showModal = false">
+                                                        <img :src="selectedImage" alt="Selected Attachment"
+                                                            class="rounded shadow-lg max-h-[80vh] mx-auto" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -167,8 +175,8 @@
                                             <div class="relative group">
                                                 <img :src="image.url" :alt="image.name"
                                                     class="w-16 h-16 object-cover rounded border border-gray-300">
-                                                <button @click="removeImage(index)"
-                                                    class="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button style="color: black" @click="removeImage(index)"
+                                                    class="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 rounded-full w-5 h-5 flex items-center justify-center transition-opacity">
                                                     ×
                                                 </button>
                                                 <div
