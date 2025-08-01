@@ -6,7 +6,7 @@
     <!-- Page Title End -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {{-- <h1>{{Auth::user()->getAllPermissions()}}</h1> --}}
+        {{-- <h1>{{ dd(Auth::user()->getRoleNames()) }}</h1> --}}
 
         {{-- Total Tickets --}}
         <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
@@ -55,7 +55,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
             <div class="flex items-center justify-between">
                 <div>
@@ -87,7 +87,6 @@
                 </div>
             </div>
         </div>
-        
 
         <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
             <div class="flex items-center justify-between">
@@ -106,14 +105,53 @@
         </div>
 
     </div>
+    @if (Auth::user()->hasAnyRole([App\Models\User::ADMIN_ROLE, App\Models\User::SUPER_ADMIN_ROLE]))
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <section class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
+                <div id="piechart" class="w-full h-64 md:h-96"></div>
+            </section>
+        </div>
+    @endif
+
 
 </div>
 
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    var ticketData = @json($ticketsByMonth);
 
-@script
-    <script>
-        setTimeout(function() {
-            $('#loading-spinner').fadeOut('slow');
-        }, 2000);
-    </script>
-@endscript
+    google.charts.load('current', {
+        packages: ['corechart']
+    });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var chartData = [
+            ['Month', 'Tickets Created']
+        ];
+        ticketData.forEach(function(item) {
+            chartData.push([item.month, parseInt(item.count)]);
+        });
+
+        var data = google.visualization.arrayToDataTable(chartData);
+
+        var options = {
+            title: "Tickets Created Per Month ({{ date('Y') }})",
+            pieHole: 0.4,
+            chartArea: {
+                width: '100%',
+                height: '80%'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+
+        window.addEventListener('resize', () => {
+            chart.draw(data, options);
+        });
+    }
+</script>

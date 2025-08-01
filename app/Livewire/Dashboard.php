@@ -14,6 +14,26 @@ class Dashboard extends Component
 {
     public function render()
     {
+        $ticketsByMonth = Ticket::whereYear('created_at', date('Y'))
+            ->select(
+                DB::raw('COUNT(*) as count'),
+                DB::raw('MONTH(created_at) as month_number'),
+                DB::raw('MONTHNAME(created_at) as month_name')
+            )
+            ->groupBy('month_number', 'month_name')
+            ->orderBy('month_number')
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'month' => $ticket->month_name,
+                    'count' => $ticket->count,
+                ];
+            })->toArray();
+
+
+        // dd($ticketsByMonth);
+
+
         $totalTickets = [];
         $statusCounts = [];
         $priorityCounts = [];
@@ -54,7 +74,7 @@ class Dashboard extends Component
                 ->groupBy('priority')
                 ->pluck('count', 'priority')
                 ->toArray();
-                
+
         } else {
 
             $totalTickets = Ticket::count();
@@ -73,7 +93,8 @@ class Dashboard extends Component
         return view('livewire.dashboard', compact(
             'totalTickets',
             'statusCounts',
-            'priorityCounts'
+            'priorityCounts',
+            'ticketsByMonth'
         ));
     }
 }

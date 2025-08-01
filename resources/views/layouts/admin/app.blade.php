@@ -111,8 +111,11 @@
     <script>
         window.onload = function() {
             $('.select2').select2();
-            $('#loading-spinner').fadeOut('slow');
         };
+
+        setTimeout(function() {
+            $('#loading-spinner').fadeOut('slow');
+        }, 1200);
     </script>
     {{-- <script>
         document.addEventListener('livewire:navigated', () => {

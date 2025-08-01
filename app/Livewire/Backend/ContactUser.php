@@ -23,11 +23,12 @@ class ContactUser extends Component
     public $id, $message, $userId, $ticket_id, $replies;
 
     public $uploadedImages = [];
-    protected $listeners = ['newReplyAdded'];
+    protected $listeners = ['newReplyAdded', 'reply-added'];
 
     public function newReplyAdded()
     {
         $this->loadReplies();
+
     }
 
     public function mount()
@@ -132,6 +133,8 @@ class ContactUser extends Component
             $this->message = '';
             $this->uploadedImages = [];
             $this->dispatch('newReplyAdded');
+            $this->dispatch('reply-added');
+
             $this->dispatch('clear-images');
             DB::commit();
 
