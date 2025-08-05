@@ -108,23 +108,7 @@
     <!-- Dashboard App js -->
     {{-- <script src="{{ asset('assets/js/pages/dashboard.js') }}"></script> --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script>
-        window.onload = function() {
-            $('.select2').select2();
-        };
 
-        setTimeout(function() {
-            $('#loading-spinner').fadeOut('slow');
-        }, 1200);
-    </script>
-    {{-- <script>
-        document.addEventListener('livewire:navigated', () => {
-            // Only run this code when navigation completes
-            if (!window.map) {
-                window.map = initializeMap();
-            }
-        });
-    </script> --}}
     @livewireScripts
     @if (session()->has('toastr'))
         <script>
@@ -141,30 +125,18 @@
         </script>
     @endif
     <script>
-        document.addEventListener('livewire:init', () => {
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": true,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "preventDuplicates": true,
-                "onclick": null,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-
-            Livewire.on('notify', (event) => {
-                const toastFunction = toastr[event.type] || toastr.info;
-                toastFunction(event.message);
-            });
+        Livewire.on('notify', (event) => {
+            const toastFunction = toastr[event.type] || toastr.info;
+            toastFunction(event.message);
         });
+        window.onload = function() {
+            $('.select2').select2();
+            // $('#loading-spinner').fadeOut('slow');
+        };
+
+        setTimeout(function() {
+            $('#loading-spinner').fadeOut('slow');
+        }, 300);
     </script>
 
 </body>

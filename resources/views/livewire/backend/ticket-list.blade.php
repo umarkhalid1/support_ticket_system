@@ -6,9 +6,10 @@
                 <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                 <select class="form-select select2 w-full" wire:model.live='search_category_id'>
                     <option value="">All Categories</option>
-                    @foreach ($categories as $data)
-                        <option value="{{ $data->id }}">{{ $data->name }}</option>
+                    @foreach ($categories as $id => $name)
+                        <option value="{{ $id }}">{{ $name }}</option>
                     @endforeach
+
                 </select>
             </div>
 

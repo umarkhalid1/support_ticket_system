@@ -98,11 +98,16 @@
                     <h4 class="text-md font-semibold text-gray-800 mb-3 flex items-center gap-1">
                         <i class="ri-file-text-line text-indigo-500"></i> Description
                     </h4>
-                    @if (!empty($ticket->assigned_to))
+                    @if (
+                        !empty($ticket->assigned_to) &&
+                            $ticket->status !== \App\Models\Ticket::CLOSED_STATUS &&
+                            $ticket->status !== \App\Models\Ticket::RESOLVED_STATUS)
                         <a href="{{ route('contact.user', [$ticket->id]) }}"
-                            class="btn bg-primary btn-sm text-white ml-2"><i
-                                class="ri-message-3-line mr-2"></i>Message</a>
+                            class="btn bg-primary btn-sm text-white ml-2">
+                            <i class="ri-message-3-line mr-2"></i>Message
+                        </a>
                     @endif
+
                 </div>
                 <div
                     class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-gray-700 leading-relaxed shadow-inner">

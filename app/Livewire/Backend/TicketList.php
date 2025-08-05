@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Backend;
 
+use App\Mail\TicketResolved;
 use Mail;
 use App\Models\User;
 use App\Models\Ticket;
@@ -84,7 +85,9 @@ class TicketList extends Component
         }
 
         $tickets = $query->paginate(10);
-        $categories = Category::toBase()->get(['id', 'name']);
+        $categories = Category::Active()->pluck('name', 'id');
+
+        // dd($categories);
         $supportAgents = User::role(User::SUPPORT_AGENT_ROLE)->toBase()->get(['id', 'name']);
 
         return view('livewire.backend.ticket-list', compact('tickets', 'categories', 'supportAgents'));
@@ -156,9 +159,14 @@ class TicketList extends Component
         try {
             DB::beginTransaction();
 
-            $ticket = Ticket::findOrFail($ticketId);
+            $ticket = Ticket::with('user')->findOrFail($ticketId);
             $ticket->status = $status;
+
             $ticket->save();
+
+            if ($status == Ticket::RESOLVED_STATUS || $status == Ticket::CLOSED_STATUS) {
+                Mail::to($ticket->user->email)->queue(new TicketResolved($ticket));
+            }
 
             DB::commit();
             return $this->toastSuccess('Ticket status updated.');

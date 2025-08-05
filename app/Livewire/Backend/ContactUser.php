@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Backend;
 
+use App\Mail\ReplyAdded;
 use Auth;
 use App\Models\User;
 use App\Models\Ticket;
@@ -13,6 +14,7 @@ use App\Models\ReplyAttachment;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\DB;
 use App\Livewire\Concerns\WithToastr;
+use Mail;
 
 #[Layout('layouts.admin.app')]
 
@@ -21,6 +23,7 @@ class ContactUser extends Component
     use WithToastr, WithFileUploads;
 
     public $id, $message, $userId, $ticket_id, $replies;
+    public $ticket_status;
 
     public $uploadedImages = [];
     protected $listeners = ['newReplyAdded', 'reply-added'];
@@ -81,7 +84,7 @@ class ContactUser extends Component
             ->findOrFail($this->id);
 
         if ($ticket->status === Ticket::CLOSED_STATUS || $ticket->status === Ticket::RESOLVED_STATUS) {
-            abort(403, 'You cannot send messages to this ticket.');
+            abort(403, 'This ticket is alread closed or resolved.');
         }
         if (Auth::user()->hasRole(User::SUPPORT_AGENT_ROLE) && $ticket->assigned_to !== Auth::id()) {
             abort(403, 'You are not authorized to access this ticket.');
@@ -130,6 +133,17 @@ class ContactUser extends Component
                     ]);
                 }
             }
+
+
+            $ticket = Ticket::with('user', 'assignto')->find($this->ticket_id);
+
+            // Send mail
+            if (Auth::user()->hasRole(User::USER_ROLE) && $ticket && $ticket->assignto) {
+                Mail::to($ticket->assignto->email)->send(new ReplyAdded($ticket, $ticketReply));
+            } elseif (Auth::user()->hasRole(User::SUPPORT_AGENT_ROLE) && $ticket && $ticket->user) {
+                Mail::to($ticket->user->email)->send(new ReplyAdded($ticket, $ticketReply));
+            }
+
             $this->message = '';
             $this->uploadedImages = [];
             $this->dispatch('newReplyAdded');
@@ -142,5 +156,24 @@ class ContactUser extends Component
             DB::rollBack();
             return $this->toastError($th->getMessage());
         }
+    }
+
+    public function updateTicketStatus()
+    {
+        $this->validate([
+            'ticket_status' => 'required',
+        ]);
+
+        if (empty($this->ticket_id)) {
+            return $this->toastError('Ticket Id is required.');
+        }
+
+        $ticket = Ticket::find($this->ticket_id);
+
+        $ticket->update([
+            'status' => $this->ticket_status,
+        ]);
+
+        $this->toastSuccess('Ticket status updated successfully.');
     }
 }

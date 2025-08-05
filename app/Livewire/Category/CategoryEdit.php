@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 class CategoryEdit extends Component
 {
     use WithToastr;
-    public $category, $name;
+    public Category $category;
+    public $name;
 
     public function mount(Category $category)
     {

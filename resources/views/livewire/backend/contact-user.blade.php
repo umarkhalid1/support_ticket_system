@@ -6,7 +6,7 @@
                 class="fc-offcanvas-open:translate-x-0 hidden lg:flex lg:static absolute inset-y-0 end-0 translate-x-full lg:rtl:translate-x-0 lg:translate-x-0 rtl:-translate-x-full transition-all duration-300 transform w-full"
                 tabindex="-1">
                 <div class="card w-full overflow-hidden">
-                    <div class="py-3 px-6 border-b border-light dark:border-gray-600">
+                    <div class="py-3 px-6 border-b border-light dark:border-gray-600 flex justify-between">
                         <div class="flex flex-wrap justify-between gap-3 py-1.5">
                             <div class="sm:w-7/12">
                                 <div class="flex items-center gap-2">
@@ -25,6 +25,20 @@
                                 </div>
                             </div>
                         </div>
+                        @if (Auth::user()->hasRole(App\Models\User::SUPPORT_AGENT_ROLE))
+                            <form wire.submit.prevent='updateTicketStatus'>
+                                <div class="flex-1 min-w-[180px]">
+                                    <select class="form-select w-full" wire:model='ticket_status'
+                                        wire:change='updateTicketStatus'>
+                                        <option value="">All Status</option>
+                                        <option value="{{ App\Models\Ticket::OPEN_STATUS }}">Open</option>
+                                        <option value="{{ App\Models\Ticket::IN_PROGRESS_STATUS }}">In Progress</option>
+                                        <option value="{{ App\Models\Ticket::RESOLVED_STATUS }}">Resolved</option>
+                                        <option value="{{ App\Models\Ticket::CLOSED_STATUS }}">Closed</option>
+                                    </select>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                     <div class="p-4">
                         <div x-data="{

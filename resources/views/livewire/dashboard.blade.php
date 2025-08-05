@@ -136,7 +136,7 @@
         var data = google.visualization.arrayToDataTable(chartData);
 
         var options = {
-            title: "Tickets Created Per Month ({{ date('Y') }})",
+            title: "Tickets Created This Year ({{ date('Y') }})",
             pieHole: 0.4,
             chartArea: {
                 width: '100%',
