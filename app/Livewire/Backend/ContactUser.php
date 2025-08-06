@@ -22,8 +22,7 @@ class ContactUser extends Component
 {
     use WithToastr, WithFileUploads;
 
-    public $id, $message, $userId, $ticket_id, $replies;
-    public $ticket_status;
+    public $id, $message, $userId, $ticket_id, $replies, $status;
 
     public $uploadedImages = [];
     protected $listeners = ['newReplyAdded', 'reply-added'];
@@ -31,7 +30,6 @@ class ContactUser extends Component
     public function newReplyAdded()
     {
         $this->loadReplies();
-
     }
 
     public function mount()
@@ -49,7 +47,7 @@ class ContactUser extends Component
         ])
             ->where('ticket_id', $this->id)
             ->latest()
-            ->take(20)
+            ->take(5)
             ->get()
             ->reverse();
     }
@@ -67,7 +65,7 @@ class ContactUser extends Component
             ->where('ticket_id', $this->id)
             ->latest()
             ->skip($this->replies->count())
-            ->take(20)
+            ->take(5)
             ->get()
             ->reverse();
 
@@ -92,6 +90,7 @@ class ContactUser extends Component
 
         $this->ticket_id = $ticket->id;
         $this->userId = $ticket->user_id;
+        $this->status = $ticket->status;
 
         return view('livewire.backend.contact-user', [
             'ticket' => $ticket,
@@ -134,14 +133,20 @@ class ContactUser extends Component
                 }
             }
 
-
             $ticket = Ticket::with('user', 'assignto')->find($this->ticket_id);
 
-            // Send mail
-            if (Auth::user()->hasRole(User::USER_ROLE) && $ticket && $ticket->assignto) {
-                Mail::to($ticket->assignto->email)->send(new ReplyAdded($ticket, $ticketReply));
-            } elseif (Auth::user()->hasRole(User::SUPPORT_AGENT_ROLE) && $ticket && $ticket->user) {
-                Mail::to($ticket->user->email)->send(new ReplyAdded($ticket, $ticketReply));
+            if ($ticket) {
+                $recipient = null;
+
+                if (auth()->user()->hasRole(User::USER_ROLE)) {
+                    $recipient = $ticket->assignto?->email;
+                } elseif (auth()->user()->hasRole(User::SUPPORT_AGENT_ROLE)) {
+                    $recipient = $ticket->user?->email;
+                }
+
+                if ($recipient) {
+                    Mail::to($recipient)->send(new ReplyAdded($ticket, $ticketReply));
+                }
             }
 
             $this->message = '';
@@ -161,7 +166,7 @@ class ContactUser extends Component
     public function updateTicketStatus()
     {
         $this->validate([
-            'ticket_status' => 'required',
+            'status' => 'required',
         ]);
 
         if (empty($this->ticket_id)) {
@@ -171,8 +176,12 @@ class ContactUser extends Component
         $ticket = Ticket::find($this->ticket_id);
 
         $ticket->update([
-            'status' => $this->ticket_status,
+            'status' => $this->status,
         ]);
+
+        if ($ticket->status === Ticket::CLOSED_STATUS || $ticket->status === Ticket::RESOLVED_STATUS) {
+            return $this->toastSuccessAndRedirect('Ticket is now ' . $ticket->status.'.', 'tickets.index');
+        }
 
         $this->toastSuccess('Ticket status updated successfully.');
     }

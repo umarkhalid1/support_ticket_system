@@ -26,9 +26,9 @@
                             </div>
                         </div>
                         @if (Auth::user()->hasRole(App\Models\User::SUPPORT_AGENT_ROLE))
-                            <form wire.submit.prevent='updateTicketStatus'>
+                            <div>
                                 <div class="flex-1 min-w-[180px]">
-                                    <select class="form-select w-full" wire:model='ticket_status'
+                                    <select class="form-select w-full" wire:model='status'
                                         wire:change='updateTicketStatus'>
                                         <option value="">All Status</option>
                                         <option value="{{ App\Models\Ticket::OPEN_STATUS }}">Open</option>
@@ -37,7 +37,7 @@
                                         <option value="{{ App\Models\Ticket::CLOSED_STATUS }}">Closed</option>
                                     </select>
                                 </div>
-                            </form>
+                            </div>
                         @endif
                     </div>
                     <div class="p-4">
@@ -47,11 +47,15 @@
                                 if (event.target.scrollTop === 0 && !this.loading) {
                                     this.loading = true;
                         
-                                    await new Promise(resolve => setTimeout(resolve, 100));
+                                    const previousHeight = this.$el.scrollHeight;
                         
                                     Livewire.dispatch('loadMoreReplies');
                         
-                                    await new Promise(resolve => setTimeout(resolve, 400)); // optional
+                                    await new Promise(resolve => setTimeout(resolve, 400)); // Wait for DOM update
+                        
+                                    const newHeight = this.$el.scrollHeight;
+                                    this.$el.scrollTop = newHeight - previousHeight;
+                        
                                     this.loading = false;
                                 }
                             },
@@ -63,6 +67,7 @@
                         }" x-init="scrollToBottom()" @scroll="checkScrollTop($event)"
                             class="space-y-4 overflow-y-auto w-full relative"
                             style="max-height: calc(100vh - 300px); scrollbar-width: none; -ms-overflow-style: none;">
+
 
                             <div x-show="loading" style="margin-bottom: 50px;"
                                 class="absolute top-0 left-1/2 transform -translate-x-1/2 text-gray-500 text-sm">

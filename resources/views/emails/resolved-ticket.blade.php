@@ -307,7 +307,7 @@
         </div>
         
         <div class="footer">
-            <p>&copy; {{ now()->year }} ByteTuened Technologies. All rights reserved.</p>
+            <p>© {{ now()->year }} ByteTuened Technologies. All rights reserved.</p>
             {{-- <div class="footer-links">
                 <a href="#">Support Center</a>
                 <a href="#">Contact Us</a>
