@@ -29,6 +29,7 @@ class TicketDetail extends Component
             'user:id,name',
             'category:id,name',
             'assignto:id,name',
+            'assignBy:id,name',
         ]);
     }
 

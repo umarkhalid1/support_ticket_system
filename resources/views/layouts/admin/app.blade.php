@@ -136,7 +136,7 @@
 
         setTimeout(function() {
             $('#loading-spinner').fadeOut('slow');
-        }, 300);
+        }, 200);
     </script>
 
 </body>

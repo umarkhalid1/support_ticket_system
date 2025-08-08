@@ -256,6 +256,15 @@
                                                 <i class="ri-delete-bin-2-line text-base text-red-600"></i>
                                             </button>
                                         @endcan
+                                        @if (
+                                            !empty($data->assigned_to) &&
+                                                $data->status !== \App\Models\Ticket::CLOSED_STATUS &&
+                                                $data->status !== \App\Models\Ticket::RESOLVED_STATUS)
+                                            <a href="{{ route('contact.user', [$data->id]) }}">
+                                                <i class="ri-message-3-line mr-2"
+                                                    style="color: rgb(140, 35, 238); font-size: 18px; margin-right: 10px;"></i>
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

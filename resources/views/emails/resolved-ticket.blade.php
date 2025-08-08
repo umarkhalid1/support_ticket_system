@@ -307,12 +307,7 @@
         </div>
         
         <div class="footer">
-            <p>© {{ now()->year }} ByteTuened Technologies. All rights reserved.</p>
-            {{-- <div class="footer-links">
-                <a href="#">Support Center</a>
-                <a href="#">Contact Us</a>
-                <a href="#">Unsubscribe</a>
-            </div> --}}
+            <p>© {{ now()->year }} ByteTuned Technologies. All rights reserved.</p>
         </div>
     </div>
 </body>

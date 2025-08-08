@@ -47,7 +47,7 @@ class ContactUser extends Component
         ])
             ->where('ticket_id', $this->id)
             ->latest()
-            ->take(5)
+            ->take(10)
             ->get()
             ->reverse();
     }
@@ -65,7 +65,7 @@ class ContactUser extends Component
             ->where('ticket_id', $this->id)
             ->latest()
             ->skip($this->replies->count())
-            ->take(5)
+            ->take(10)
             ->get()
             ->reverse();
 
@@ -88,6 +88,12 @@ class ContactUser extends Component
             abort(403, 'You are not authorized to access this ticket.');
         }
 
+        abort_if(empty($ticket->assigned_to), 403, 'This ticket is not assigned to anyone.');
+
+        if (!Auth::user()->hasAnyRole([User::ADMIN_ROLE, User::SUPER_ADMIN_ROLE])) {
+            abort_if($ticket->user_id !== Auth::id(), 404, 'Not found.');
+        }
+
         $this->ticket_id = $ticket->id;
         $this->userId = $ticket->user_id;
         $this->status = $ticket->status;
@@ -101,7 +107,8 @@ class ContactUser extends Component
     protected function rules()
     {
         return [
-            'message' => 'required|min:1',
+            'message' => 'nullable|string|min:1',
+            'uploadedImages' => 'array',
             'uploadedImages.*' => 'image|max:1024|nullable'
         ];
     }
@@ -109,6 +116,10 @@ class ContactUser extends Component
     public function submit()
     {
         $validatedData = $this->validate();
+
+        if (empty($this->message) && empty($this->uploadedImages)) {
+            return $this->toastError('Message cannot be empty');
+        }
 
         $replyData = [
             'message' => $validatedData['message'],
@@ -180,7 +191,7 @@ class ContactUser extends Component
         ]);
 
         if ($ticket->status === Ticket::CLOSED_STATUS || $ticket->status === Ticket::RESOLVED_STATUS) {
-            return $this->toastSuccessAndRedirect('Ticket is now ' . $ticket->status.'.', 'tickets.index');
+            return $this->toastSuccessAndRedirect('Ticket is now ' . $ticket->status . '.', 'tickets.index');
         }
 
         $this->toastSuccess('Ticket status updated successfully.');

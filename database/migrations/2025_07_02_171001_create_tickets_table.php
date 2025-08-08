@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
             $table->foreignId('assigned_to')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('assigned_by')->nullable()->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->string('attachement')->nullable();
             $table->longText( 'description');
@@ -24,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
 
-            $table->index(['user_id', 'category_id', 'assigned_to']);
+            $table->index(['user_id', 'category_id', 'assigned_to', 'assigned_by']);
             $table->index(['priority', 'status']);
 
         });

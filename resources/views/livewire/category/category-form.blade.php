@@ -6,7 +6,12 @@
             </h4>
 
             <form wire:submit.prevent="submit" class="grid lg:grid-cols-2 gap-6">
-                <div>
+
+                <!-- Name -->
+
+                <x-my-input name="name" label="Name" type="text" model="name" />
+
+                {{-- <div>
                     <label class="mb-2 block" for="name">
                         Name <span class="text-danger">*</span>
                     </label>
@@ -15,7 +20,7 @@
                     @error('name')
                         <span class="text-sm text-red-600 !text-red-600">{{ $message }}</span>
                     @enderror
-                </div>
+                </div> --}}
 
                 {{-- <div x-data="{ fields: [{ value: '' }] }">
                     <template x-for="(field, index) in fields" :key="index">
@@ -28,9 +33,7 @@
                 </div> --}}
 
                 <div class="col-span-2">
-                    <button type="submit" class="btn bg-primary text-white">
-                        Submit
-                    </button>
+                    <x-primary-button style="background: black">{{ __('Save') }}</x-primary-button>
                 </div>
             </form>
         </div>

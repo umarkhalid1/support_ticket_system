@@ -89,6 +89,14 @@
                             <p class="text-gray-900">{{ $ticket->assignto->name ?? 'N/A' }}</p>
                         </div>
                     </div>
+                    <!-- Assigned To -->
+                    <div class="flex items-start gap-2 mt-6">
+                        <i class="ri-user-settings-line text-indigo-500 text-lg mt-1"></i>
+                        <div>
+                            <p class="text-sm text-gray-500">Assigned By</p>
+                            <p class="text-gray-900">{{ $ticket->assignBy->name ?? 'N/A' }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

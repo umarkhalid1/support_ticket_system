@@ -6,103 +6,122 @@
     <!-- Page Title End -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {{-- <h1>{{ dd(Auth::user()->getRoleNames()) }}</h1> --}}
+        {{-- <h1>{{ dd(Auth::user()->getAllPermissions()) }}</h1> --}}
 
         {{-- Total Tickets --}}
-        <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
-                        Total Tickets
-                    </h5>
-                    <h2 class="text-4xl font-extrabold text-gray-800">
-                        {{ $totalTickets }}
-                    </h2>
-                </div>
-                <div class="text-indigo-600 bg-indigo-100 p-3 rounded-full text-3xl shadow-sm">
-                    🧾
-                </div>
-            </div>
-        </div>
-        <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
-                        Open Tickets
-                    </h5>
-                    <h2 class="text-4xl font-extrabold text-gray-800">
-                        {{ $statusCounts[App\Models\Ticket::OPEN_STATUS] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="text-indigo-600 bg-green-300 p-3 rounded-full text-3xl shadow-sm">
-                    🧾
+        <a href="{{ route('tickets.index') }}">
+            <div
+                class="bg-white border border-gray-100 p-6 rounded-xl shadow-md hover:bg-gray-50 transition duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
+                            Total Tickets
+                        </h5>
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            {{ $totalTickets }}
+                        </h2>
+                    </div>
+                    <div class="text-indigo-600 bg-indigo-100 p-3 rounded-full text-3xl shadow-sm">
+                        🧾
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
-                        In Progress Tickets
-                    </h5>
-                    <h2 class="text-4xl font-extrabold text-gray-800">
-                        {{ $statusCounts[App\Models\Ticket::IN_PROGRESS_STATUS] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="text-indigo-600 bg-yellow-200 p-3 rounded-full text-3xl shadow-sm">
-                    🧾
+        <a href="{{ route('tickets.index', ['search_status' => App\Models\Ticket::OPEN_STATUS]) }}">
+            <div
+                class="bg-white border border-gray-100 p-6 rounded-xl shadow-md hover:bg-gray-50 transition duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
+                            Open Tickets
+                        </h5>
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            {{ $statusCounts[App\Models\Ticket::OPEN_STATUS] ?? 0 }}
+                        </h2>
+                    </div>
+                    <div class="text-indigo-600 bg-green-300 p-3 rounded-full text-3xl shadow-sm">
+                        🧾
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
-                        Closed Tickets
-                    </h5>
-                    <h2 class="text-4xl font-extrabold text-gray-800">
-                        {{ $statusCounts[App\Models\Ticket::CLOSED_STATUS] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="text-indigo-600 bg-red-400 p-3 rounded-full text-3xl shadow-sm">
-                    🧾
+        <a href="{{ route('tickets.index', ['search_status' => App\Models\Ticket::IN_PROGRESS_STATUS]) }}">
+            <div
+                class="bg-white border border-gray-100 p-6 rounded-xl shadow-md hover:bg-gray-50 transition duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
+                            In Progress Tickets
+                        </h5>
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            {{ $statusCounts[App\Models\Ticket::IN_PROGRESS_STATUS] ?? 0 }}
+                        </h2>
+                    </div>
+                    <div class="text-indigo-600 bg-yellow-200 p-3 rounded-full text-3xl shadow-sm">
+                        🧾
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
-                        Resolved Tickets
-                    </h5>
-                    <h2 class="text-4xl font-extrabold text-gray-800">
-                        {{ $statusCounts[App\Models\Ticket::RESOLVED_STATUS] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="text-indigo-600 bg-blue-400 p-3 rounded-full text-3xl shadow-sm">
-                    🧾
+        <a href="{{ route('tickets.index', ['search_status' => App\Models\Ticket::CLOSED_STATUS]) }}">
+            <div
+                class="bg-white border border-gray-100 p-6 rounded-xl shadow-md hover:bg-gray-50 transition duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
+                            Closed Tickets
+                        </h5>
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            {{ $statusCounts[App\Models\Ticket::CLOSED_STATUS] ?? 0 }}
+                        </h2>
+                    </div>
+                    <div class="text-indigo-600 bg-red-400 p-3 rounded-full text-3xl shadow-sm">
+                        🧾
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white border border-gray-100 p-6 rounded-xl shadow-md">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
-                        High Priority
-                    </h5>
-                    <h2 class="text-4xl font-extrabold text-gray-800">
-                        {{ $priorityCounts[App\Models\Ticket::HIGH_PRIORITY] ?? 0 }}
-                    </h2>
-                </div>
-                <div class="text-indigo-600 bg-red-500 p-3 rounded-full text-3xl shadow-sm">
-                    🧾
+        <a href="{{ route('tickets.index', ['search_status' => App\Models\Ticket::RESOLVED_STATUS]) }}">
+            <div
+                class="bg-white border border-gray-100 p-6 rounded-xl shadow-md hover:bg-gray-50 transition duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
+                            Resolved Tickets
+                        </h5>
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            {{ $statusCounts[App\Models\Ticket::RESOLVED_STATUS] ?? 0 }}
+                        </h2>
+                    </div>
+                    <div class="text-indigo-600 bg-blue-400 p-3 rounded-full text-3xl shadow-sm">
+                        🧾
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
+
+        <a href="{{ route('tickets.index', ['search_priority' => App\Models\Ticket::HIGH_PRIORITY]) }}">
+            <div
+                class="bg-white border border-gray-100 p-6 rounded-xl shadow-md hover:bg-gray-50 transition duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-gray-500 text-sm uppercase tracking-wider mb-1">
+                            High Priority
+                        </h5>
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            {{ $priorityCounts[App\Models\Ticket::HIGH_PRIORITY] ?? 0 }}
+                        </h2>
+                    </div>
+                    <div class="text-indigo-600 bg-red-500 p-3 rounded-full text-3xl shadow-sm">
+                        🧾
+                    </div>
+                </div>
+            </div>
+        </a>
 
     </div>
     @if (Auth::user()->hasAnyRole([App\Models\User::ADMIN_ROLE, App\Models\User::SUPER_ADMIN_ROLE]))
@@ -155,3 +174,12 @@
         });
     }
 </script>
+
+{{-- 
+@script
+    <script>
+        setTimeout(function() {
+            $('#loading-spinner').fadeOut('slow');
+        }, 600);
+    </script>
+@endscript --}}

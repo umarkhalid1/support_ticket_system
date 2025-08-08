@@ -6,21 +6,12 @@
             </h4>
 
             <form wire:submit.prevent="submit" class="grid lg:grid-cols-2 gap-6">
-                <div>
-                    <label class="mb-2 block">
-                        Name <span class="text-danger">*</span>
-                    </label>
-                    <input type="text" wire:model="name" class="form-input w-full" />
 
-                    @error('name')
-                        <span class="text-sm text-red-600 !text-red-600">{{ $message }}</span>
-                    @enderror
-                </div>
+                <!-- Name -->
+                <x-my-input name="name" label="Name" type="text" model="name" />
 
                 <div class="col-span-2">
-                    <button type="submit" class="btn bg-primary text-white">
-                        Update
-                    </button>
+                    <x-primary-button style="background: black">{{ __('Save') }}</x-primary-button>
                 </div>
             </form>
         </div>

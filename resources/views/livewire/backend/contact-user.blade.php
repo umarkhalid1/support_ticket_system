@@ -7,7 +7,7 @@
                 tabindex="-1">
                 <div class="card w-full overflow-hidden">
                     <div class="py-3 px-6 border-b border-light dark:border-gray-600 flex justify-between">
-                        <div class="flex flex-wrap justify-between gap-3 py-1.5">
+                        <div class="flex flex-wrap justify-between gap-3 py-1.5" style="width: -webkit-fill-available">
                             <div class="sm:w-7/12">
                                 <div class="flex items-center gap-2">
                                     <button class="lg:hidden block rtl:rotate-180" data-fc-dismiss type="button">
@@ -51,7 +51,7 @@
                         
                                     Livewire.dispatch('loadMoreReplies');
                         
-                                    await new Promise(resolve => setTimeout(resolve, 400)); // Wait for DOM update
+                                    await new Promise(resolve => setTimeout(resolve, 400));
                         
                                     const newHeight = this.$el.scrollHeight;
                                     this.$el.scrollTop = newHeight - previousHeight;
@@ -64,9 +64,13 @@
                                     this.$el.scrollTop = this.$el.scrollHeight;
                                 });
                             }
-                        }" x-init="scrollToBottom()" @scroll="checkScrollTop($event)"
+                        }" x-init="scrollToBottom();
+                        Livewire.on('newReplyAdded', () => {
+                            scrollToBottom();
+                        });" @scroll="checkScrollTop($event)"
                             class="space-y-4 overflow-y-auto w-full relative"
                             style="max-height: calc(100vh - 300px); scrollbar-width: none; -ms-overflow-style: none;">
+
 
 
                             <div x-show="loading" style="margin-bottom: 50px;"
@@ -212,7 +216,7 @@
                                     <div class="flex gap-2">
                                         <input type="text"
                                             class="form-input border-none bg-white dark:bg-gray-800 placeholder:text-slate-400"
-                                            placeholder="Enter your text" required="" wire:model='message' />
+                                            placeholder="Enter your text" wire:model='message' />
                                         <div class="w-auto">
                                             <div class="flex gap-1">
                                                 <a href="#" @click.prevent="$refs.fileInput.click()"
@@ -225,10 +229,12 @@
 
                                                 <input type="file" x-ref="fileInput" @change="handleFileSelection"
                                                     multiple accept="image/*" style="display: none;" />
-
-                                                <button type="submit" class="btn bg-success text-white w-full">
+                                                <button type="submit"
+                                                    class="btn bg-success text-white w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    :disabled="uploading">
                                                     <i class="ri-send-plane-2-line"></i>
                                                 </button>
+
                                             </div>
                                         </div>
                                     </div>
@@ -247,12 +253,18 @@
         Alpine.data('chatImageUploader', () => ({
             images: [],
             dragOver: false,
+            uploading: false,
 
             handleFileSelection(event) {
                 const files = Array.from(event.target.files);
                 const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
-                imageFiles.forEach(file => {
+                let uploadsRemaining = imageFiles.length;
+                if (uploadsRemaining > 0) {
+                    this.uploading = true;
+                }
+
+                imageFiles.forEach((file) => {
                     const exists = this.images.some(img => img.name === file.name && img.size === file
                         .size);
                     if (!exists) {
@@ -266,12 +278,31 @@
                                 id: Date.now() + Math.random()
                             });
 
-                            @this.upload(`uploadedImages.${this.images.length - 1}`, file, () => {},
-                                () => {}, (error) => {
+                            const index = this.images.length - 1;
+
+                            @this.upload(`uploadedImages.${index}`, file,
+                                () => {},
+                                () => {
+                                    uploadsRemaining--;
+                                    if (uploadsRemaining === 0) {
+                                        this.uploading = false;
+                                    }
+                                },
+                                (error) => {
                                     console.error(error);
-                                });
+                                    uploadsRemaining--;
+                                    if (uploadsRemaining === 0) {
+                                        this.uploading = false;
+                                    }
+                                }
+                            );
                         };
                         reader.readAsDataURL(file);
+                    } else {
+                        uploadsRemaining--;
+                        if (uploadsRemaining === 0) {
+                            this.uploading = false;
+                        }
                     }
                 });
 
@@ -281,7 +312,12 @@
             addFiles(files) {
                 const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
-                imageFiles.forEach((file, index) => {
+                let uploadsRemaining = imageFiles.length;
+                if (uploadsRemaining > 0) {
+                    this.uploading = true;
+                }
+
+                imageFiles.forEach((file) => {
                     const exists = this.images.some(img => img.name === file.name && img.size === file
                         .size);
                     if (!exists) {
@@ -296,21 +332,36 @@
                             };
                             this.images.push(imageData);
 
-                            @this.upload(`uploadedImages.${this.images.length - 1}`, file, () => {
+                            const index = this.images.length - 1;
 
-                            }, () => {
-
-                            }, (error) => {
-                                console.error('Upload failed', error);
-                            });
+                            @this.upload(`uploadedImages.${index}`, file,
+                                () => {},
+                                () => {
+                                    uploadsRemaining--;
+                                    if (uploadsRemaining === 0) {
+                                        this.uploading = false;
+                                    }
+                                },
+                                (error) => {
+                                    console.error('Upload failed', error);
+                                    uploadsRemaining--;
+                                    if (uploadsRemaining === 0) {
+                                        this.uploading = false;
+                                    }
+                                }
+                            );
                         };
                         reader.readAsDataURL(file);
+                    } else {
+                        uploadsRemaining--;
+                        if (uploadsRemaining === 0) {
+                            this.uploading = false;
+                        }
                     }
                 });
 
                 this.$refs.fileInput.value = '';
             },
-
 
             removeImage(index) {
                 this.images.splice(index, 1);

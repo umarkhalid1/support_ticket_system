@@ -122,6 +122,7 @@ class TicketList extends Component
 
             $ticket = Ticket::findOrFail($ticketId);
             $ticket->assigned_to = $userId;
+            $ticket->assigned_by = auth()->id();
             $ticket->save();
 
             $user = User::findOrFail($userId);

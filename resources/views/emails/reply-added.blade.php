@@ -203,8 +203,6 @@
         <!-- Footer -->
         <div class="footer">
             <p>© {{ now()->year }} ByteTuned Technologies. All rights reserved.</p>
-            {{-- <a href="#">Help Center</a>
-            <a href="#">Contact Us</a> --}}
         </div>
     </div>
 </body>
